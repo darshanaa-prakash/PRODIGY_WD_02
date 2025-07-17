@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Online Stopwatch</title>
+  <style>
+    body {
+      margin: 0;
+      background: linear-gradient(135deg, #2e1030, #4a1b5c, #6b2d7f);
+      background-size: 200% 200%;
+      animation: gradientShift 10s ease infinite;
+      font-family: 'Segoe UI', 'Helvetica', 'Arial', sans-serif;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background-color: #3a1340;
+      border-radius: 40px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      padding: 40px 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .header {
+      font-size: 28px;
+      color: #fbd9e4;
+      margin-bottom: 30px;
+      font-weight: bold;
+    }
+
+    .timer {
+      font-size: 120px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      min-width: 600px;
+    }
+
+    .unit-labels {
+      display: flex;
+      justify-content: center;
+      gap: 100px;
+      font-size: 18px;
+      margin-top: 10px;
+      color: #ddd;
+    }
+
+    .buttons {
+      margin-top: 50px;
+    }
+
+    button {
+      background-color: #fbd9e4;
+      border: none;
+      color: #2e1030;
+      font-weight: bold;
+      padding: 14px 28px;
+      font-size: 18px;
+      margin: 10px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+    }
+
+    button:hover {
+      background-color: #f9c4d6;
+    }
+
+    .laps {
+      margin-top: 30px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-size: 18px;
+      color: #ccc;
+      width: 100%;
+    }
+
+    .laps div {
+      background-color: #4a1b5c;
+      padding: 8px 16px;
+      margin: 6px auto;
+      border-radius: 20px;
+      width: 60%;
+      text-align: center;
+      color: #f0d9ec;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">Online Stopwatch</div>
+
+    <div class="timer" id="display">00:00:00</div>
+
+    <div class="unit-labels">
+      <span>Minutes</span>
+      <span>Seconds</span>
+      <span>Centiseconds</span>
+    </div>
+
+    <div class="buttons">
+      <button onclick="start()">Start</button>
+      <button onclick="pause()">Stop</button>
+      <button onclick="reset()">Reset</button>
+      <button onclick="lap()">Lap</button>
+    </div>
+
+    <div class="laps" id="laps"></div>
+  </div>
+
+  <script>
+    let startTime = 0;
+    let elapsed = 0;
+    let interval;
+    const display = document.getElementById("display");
+    const laps = document.getElementById("laps");
+
+    function formatTime(ms) {
+      const totalCentiseconds = Math.floor(ms / 10);
+      const minutes = Math.floor(totalCentiseconds / 6000);
+      const seconds = Math.floor((totalCentiseconds % 6000) / 100);
+      const centiseconds = totalCentiseconds % 100;
+
+      return (
+        String(minutes).padStart(2, "0") + ":" +
+        String(seconds).padStart(2, "0") + ":" +
+        String(centiseconds).padStart(2, "0")
+      );
+    }
+
+    function updateDisplay() {
+      const now = Date.now();
+      const diff = now - startTime + elapsed;
+      display.textContent = formatTime(diff);
+    }
+
+    function start() {
+      if (!interval) {
+        startTime = Date.now();
+        interval = setInterval(updateDisplay, 10);
+      }
+    }
+
+    function pause() {
+      if (interval) {
+        clearInterval(interval);
+        interval = null;
+        elapsed += Date.now() - startTime;
+      }
+    }
+
+    function reset() {
+      clearInterval(interval);
+      interval = null;
+      startTime = 0;
+      elapsed = 0;
+      display.textContent = "00:00:00";
+      laps.innerHTML = "";
+    }
+
+    function lap() {
+      const now = Date.now();
+      const diff = now - startTime + elapsed;
+      const time = formatTime(diff);
+      const lapEntry = document.createElement("div");
+      lapEntry.textContent = `Lap ${laps.children.length + 1}: ${time}`;
+      laps.appendChild(lapEntry);
+    }
+  </script>
+</body>
+</html>
